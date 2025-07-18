@@ -2,107 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Direct</title>
+    <title>Bookmark Catalog (Portrait Thumbnails)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        .active-tab {
+            @apply border-b-2 border-blue-500 font-bold text-blue-600;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center min-h-screen p-4">
-<div class="relative bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg transform transition-all">
-    <h1 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Phone Number Formatter</h1>
+<body class="bg-gray-100 min-h-screen">
 
-    <!-- Country Code Dropdown -->
-    <div class="mb-6">
-        <label for="countryCode" class="block text-sm font-medium text-gray-700 mb-2">Select Country Code</label>
-        <select id="countryCode" class="block w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">
-            <option value="+92" selected>Pakistan (+92)</option>
-            <option value="+1">United States (+1)</option>
-            <option value="+44">United Kingdom (+44)</option>
-            <option value="+91">India (+91)</option>
-            <option value="+86">China (+86)</option>
-            <option value="+81">Japan (+81)</option>
-            <!-- Add more country codes as needed -->
-        </select>
-    </div>
-
-    <!-- Phone Number Input -->
-    <div class="mb-6">
-        <label for="phoneInput" class="block text-sm font-medium text-gray-700 mb-2">Enter Phone Number</label>
-        <div class="flex items-center space-x-2">
-            <input type="text" id="phoneInput" class="block w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200" placeholder="e.g., 03001234567">
-            <button id="pasteButton" class="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">Paste</button>
-        </div>
-    </div>
-
-    <!-- Output and WhatsApp Link -->
-    <div class="mb-6">
-        <label for="reformedNumber" class="block text-sm font-medium text-gray-700 mb-2">Formatted Number</label>
-        <div class="flex items-center space-x-2">
-            <input type="text" id="reformedNumber" class="block w-full p-3 border border-gray-200 rounded-l-lg bg-gray-50" readonly>
-            <a id="whatsappLink" href="#" target="_blank" class="p-3 bg-green-500 text-white rounded-r-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200 pointer-events-none opacity-50">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.134.559 4.218 1.627 6.062L0 24l6.094-1.594A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22.125c-1.918 0-3.705-.547-5.219-1.5l-.375.234-3.562.938.938-3.562.234-.375a10.07 10.07 0 01-1.5-5.219c0-5.566 4.559-10.125 10.125-10.125S22.125 6.434 22.125 12 17.566 22.125 12 22.125zm4.313-7.5c-.234-.117-1.406-.703-1.625-.781-.219-.078-.375-.117-.531.117-.156.234-.625.781-.75.938-.117.156-.234.176-.469.059-.234-.117-1.008-.375-1.922-1.195-.703-.625-1.195-1.406-1.313-1.641-.117-.234 0-.352.117-.469l.352-.352c.117-.117.156-.234.234-.39-.078-.313-.234-.703-.313-.938-.078-.234-.234-.234-.352-.234h-.313c-.234 0-.469.117-.703.351-.781.781-1.016 1.992-.313 3.047.703 1.055 1.406 1.875 1.641 2.11.234.234 2.344 3.75 5.625 3.281.547-.078 1.055-.313 1.406-.586.351-.273.351-.703.273-.938l-.234-.352z"/>
-                </svg>
-            </a>
-        </div>
-        <p id="errorMessage" class="text-red-500 text-sm mt-2 hidden">Number must start with 3 and be 10 digits long.</p>
-    </div>
-
-    <!-- Watermark -->
-    <a href="https://www.upwork.com/freelancers/~0116016922bcbaf586" target="_blank" class="absolute bottom-2 right-4 text-red-400 text-sm font-semibold opacity-50 select-none" >
-        AXHAN IT Globe
-    </a>
+<!-- Navigation Tabs -->
+<div class="flex space-x-6 px-6 pt-4 text-lg border-b bg-white shadow-sm">
+    <button id="tab-catalog" class="py-2 active-tab" onclick="switchTab('catalog')">📚 My Catalog</button>
+    <button id="tab-favorites" class="py-2" onclick="switchTab('favorites')">⭐ Favorites</button>
+    <button id="tab-all" class="py-2" onclick="switchTab('all')">🔗 All Links</button>
 </div>
 
+<!-- Input Section -->
+<div class="p-4 bg-white shadow sticky top-0 z-10 flex flex-wrap gap-2 items-center">
+    <input id="urlInput" type="text" placeholder="Paste URL..." class="border p-2 flex-1 rounded">
+    <input id="titleInput" type="text" placeholder="Custom Title..." class="border p-2 flex-1 rounded">
+    <input id="imgInput" type="file" accept="image/*" class="p-2 border rounded bg-white">
+    <select id="categorySelect" class="p-2 border rounded">
+        <option value="catalog">My Catalog</option>
+        <option value="favorites">Favorites</option>
+    </select>
+    <button onclick="addUrl()" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add</button>
+    <input id="searchInput" type="text" placeholder="Search titles..." oninput="filterCards()" class="border p-2 flex-1 rounded ml-auto">
+</div>
+
+<!-- Main Card Preview -->
+<div id="mainView" class="w-full flex justify-center p-4 transition-all duration-300"></div>
+
+<!-- Film Strip -->
+<div id="filmStrip" class="overflow-x-auto flex space-x-4 px-4 py-4 bg-gray-200 rounded-b-md"></div>
+
+<!-- App Script -->
 <script>
-    const phoneInput = document.getElementById('phoneInput');
-    const countryCode = document.getElementById('countryCode');
-    const reformedNumber = document.getElementById('reformedNumber');
-    const whatsappLink = document.getElementById('whatsappLink');
-    const errorMessage = document.getElementById('errorMessage');
-    const pasteButton = document.getElementById('pasteButton');
+    const storage = {
+        catalog: [],
+        favorites: [],
+    };
+    let currentTab = 'catalog';
+    let searchQuery = '';
 
-    // Paste button functionality
-    pasteButton.addEventListener('click', async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            phoneInput.value = text;
-            processNumber();
-        } catch (err) {
-            console.error('Failed to paste:', err);
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll("button[id^='tab-']").forEach(btn => btn.classList.remove("active-tab"));
+        document.getElementById("tab-" + tab).classList.add("active-tab");
+        updateFilmStrip();
+        clearMainCard();
+    }
+
+    function clearMainCard() {
+        document.getElementById("mainView").innerHTML = '';
+    }
+
+    function addUrl() {
+        const url = document.getElementById("urlInput").value.trim();
+        const title = document.getElementById("titleInput").value.trim();
+        const category = document.getElementById("categorySelect").value;
+        const imageFile = document.getElementById("imgInput").files[0];
+
+        if (!url || !title || !imageFile) {
+            alert("Please enter URL, Title, and select an Image");
+            return;
         }
-    });
 
-    // Real-time processing on input
-    phoneInput.addEventListener('input', () => {
-        processNumber();
-    });
+        const imageUrl = URL.createObjectURL(imageFile);
+        const card = { title, url, image: imageUrl };
 
-    // Process on country code change
-    countryCode.addEventListener('change', () => {
-        processNumber();
-    });
+        storage[category].push(card);
+        updateFilmStrip();
+        highlightCard(card.url);
 
-    function processNumber() {
-        // Clear previous error
-        errorMessage.classList.add('hidden');
+        // Reset form
+        document.getElementById("urlInput").value = '';
+        document.getElementById("titleInput").value = '';
+        document.getElementById("imgInput").value = '';
+    }
 
-        // Get input and clean it
-        let number = phoneInput.value.replace(/\D/g, '');
+    function createCard(card, large = false) {
+        const widthClass = large ? 'w-60' : 'w-40';
+        const heightClass = large ? 'h-[360px]' : 'h-[240px]'; // ~6:4 ratio portrait
 
-        // Take last 10 digits
-        number = number.slice(-10);
+        return `
+        <div class="flex-shrink-0 ${widthClass} bg-white rounded shadow overflow-hidden transform hover:scale-105 transition cursor-pointer"
+             onclick="openInNewTab('${card.url}')">
+          <img src="${card.image}" class="w-full ${heightClass} object-cover object-top rounded-t" alt="${card.title}">
+          <div class="p-2 text-center text-sm font-semibold truncate">${card.title}</div>
+        </div>
+      `;
+    }
 
-        // Validate: 10 digits and starts with 3
-        if (number.length === 10 && number.startsWith('3')) {
-            const formatted = countryCode.value.replace('+', '') + number;
-            reformedNumber.value = formatted;
-            whatsappLink.href = `https://wa.me/${formatted}`;
-            whatsappLink.classList.remove('pointer-events-none', 'opacity-50');
-        } else {
-            reformedNumber.value = '';
-            whatsappLink.href = '#';
-            whatsappLink.classList.add('pointer-events-none', 'opacity-50');
-            errorMessage.classList.remove('hidden');
+    function openInNewTab(url) {
+        window.open(url, '_blank');
+    }
+
+    function getFilteredCards() {
+        const all = currentTab === 'all'
+            ? [...storage.catalog, ...storage.favorites]
+            : storage[currentTab];
+
+        return all.filter(card =>
+            card.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }
+
+    function updateFilmStrip() {
+        const strip = document.getElementById("filmStrip");
+        const cards = getFilteredCards();
+        strip.innerHTML = cards.map(card => createCard(card)).join('');
+    }
+
+    function filterCards() {
+        searchQuery = document.getElementById("searchInput").value;
+        updateFilmStrip();
+    }
+
+    function highlightCard(url) {
+        const allCards = [...storage.catalog, ...storage.favorites];
+        const card = allCards.find(c => c.url === url);
+        if (card) {
+            const main = document.getElementById("mainView");
+            main.innerHTML = createCard(card, true);
         }
     }
 </script>
